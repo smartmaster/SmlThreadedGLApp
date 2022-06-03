@@ -35,8 +35,8 @@ namespace SmartLib
 			}
 		}
 
-		template<typename T>
-		static bool CompareMat4(const glm::tmat4x4<T>& mat1, const glm::tmat4x4<T>& mat2, T const eps)
+        template<typename M, typename T>
+        static bool CompareMat(const M& mat1, const M& mat2, T const eps)
 		{
 			auto str1 = glm::to_string(mat1);
 			auto str2 = glm::to_string(mat2);
@@ -71,25 +71,46 @@ namespace SmartLib
 			int index = 0;
 			for (int ii = 0; ii < loopCount; ++ii)
 			{
-				T left = data[index % dataSize]; ++index;
-				T right = data[index % dataSize]; ++index;
-				T bottom = data[index % dataSize]; ++index;
-				T top = data[index % dataSize]; ++index;
-				T znear = data[index % dataSize]; ++index;
-				T zfar = data[index % dataSize]; ++index;
+                T left = data[index++ % dataSize];
+                T right = data[index++ % dataSize];
+                T bottom = data[index++ % dataSize];
+                T top = data[index++ % dataSize];
+                T znear = data[index++ % dataSize];
+                T zfar = data[index++ % dataSize];
 
 				{
 					auto mat = AxisCoord<T>::Ortho(left, right, bottom, top, znear, zfar);
 					auto matGlm = glm::ortho(left, right, bottom, top, znear, zfar);
 					const T eps = 1e-5;
-					assert(CompareMat4(mat, matGlm, eps));
+                    assert(CompareMat(mat, matGlm, eps));
 				}
 				{
 					auto mat = AxisCoord<T>::Frustum(left, right, bottom, top, znear, zfar);
 					auto matGlm = glm::frustum(left, right, bottom, top, znear, zfar);
 					const T eps = 1e-5;
-					assert(CompareMat4(mat, matGlm, eps));
+                    assert(CompareMat(mat, matGlm, eps));
 				}
+                {
+                    glm::tvec3<T> eye{data[index++ % dataSize], data[index++ % dataSize], data[index++ % dataSize]};
+                    glm::tvec3<T> center{data[index++ % dataSize], data[index++ % dataSize], data[index++ % dataSize]};
+                    glm::tvec3<T> up{data[index++ % dataSize], data[index++ % dataSize], data[index++ % dataSize]};
+                    auto mat = AxisCoord<T>::LookAt(eye, center, up);
+                    auto matGlm = glm::lookAt(eye, center, up);
+                    const T eps = 1e-5;
+                    assert(CompareMat(mat, matGlm, eps));
+                }
+                {
+                    T radian = data[index++ % dataSize];
+                    glm::tvec3<T> rotationAxis{data[index++ % dataSize], data[index++ % dataSize], data[index++ % dataSize]};
+
+                    auto mat = AxisCoord<T>::RotateMat(radian, rotationAxis);
+
+                    static glm::tmat4x4<T> me{T{1}};
+                    auto matGlm = glm::tmat3x3<T>{glm::rotate(me, radian, rotationAxis)};
+
+                    const T eps = 1e-5;
+                    assert(CompareMat(mat, matGlm, eps));
+                }
 
 			}
 		}
