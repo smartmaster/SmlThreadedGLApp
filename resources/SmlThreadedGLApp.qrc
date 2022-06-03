@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/image">
+        <file>./image/tex.jpg</file>
+        <file>./image/side5.png</file>
+    </qresource>
+    <qresource prefix="/shaders">
+        <file>./shader/frag.frag</file>
+        <file>./shader/vert.vert</file>
+    </qresource>
+</RCC>
