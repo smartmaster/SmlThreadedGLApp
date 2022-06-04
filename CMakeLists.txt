@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.22)
 
 set(SML_PROJECT SmlThreadedGLApp)
-project(${SML_PROJECT} VERSION 0.1 LANGUAGES CXX)
+project(${SML_PROJECT} VERSION 0.1 LANGUAGES C CXX)
+
+set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}_install)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -30,7 +33,7 @@ set(PROJECT_SOURCES
         ./SmlOpenGLWinBase/SmlWaitObject.cpp
         ./SmlOpenGLWinImpl/SmlGLWindowTriangle.h
         ./SmlOpenGLWinImpl/SmlGLWindowTriangle.cpp
-        ./resources/${SML_PROJECT}.qrc
+        ./resources/SmlThreadedGLApp.qrc
 
         forms/openglform.h forms/openglform.cpp forms/openglform.ui
         forms/testmiscform.h forms/testmiscform.cpp forms/testmiscform.ui
@@ -82,3 +85,5 @@ set_target_properties(${SML_PROJECT} PROPERTIES
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(${SML_PROJECT})
 endif()
+
+install(TARGETS ${SML_PROJECT})

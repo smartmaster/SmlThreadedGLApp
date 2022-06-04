@@ -18,98 +18,87 @@
 class SmlThreadGLWindow;
 class SmlThreadGLRender : public QObject
 {
-	Q_OBJECT
+    Q_OBJECT
 
 private:
-	SmlThreadGLWindow* _glwin{ nullptr };
+    SmlThreadGLWindow* _glwin{ nullptr };
 
 public:
-	SmlThreadGLRender(QObject* parent, SmlThreadGLWindow* window);
+    SmlThreadGLRender(QObject* parent, SmlThreadGLWindow* window);
 
 public slots:
-	void Render();
-
-//signals:
-//	void RenderFrameDoneSignal();
-
+    void Render();
 };
 
 class SmlThreadGLWindow : public QWindow, protected QOpenGLFunctions_4_5_Core
 {
-	Q_OBJECT
+    Q_OBJECT
 
 private:
-	friend class SmlThreadGLRender;
-	using XQTBase = QWindow;
+    friend class SmlThreadGLRender;
+    using SML_QTBase = QWindow;
 
 private:
-	QOpenGLPaintDevice* _paintDev{ nullptr };
-	QOpenGLContext* _glctx{ nullptr };
+    QOpenGLPaintDevice* _paintDev{ nullptr };
+    QOpenGLContext* _glctx{ nullptr };
 
-	int _eventCounter{ 0 };
-	bool _animating{ false };
-	//bool _isRenerering{ false };
-	bool _SurfaceDestroyed{ false };
+    int _eventCounter{ 0 };
+    bool _animating{ false };
+    bool _SurfaceDestroyed{ false };
 
-	
-	
-	QMutex _renderLock;
-	QThread* _thread{nullptr};
-	SmlThreadGLRender* _render{ nullptr };
 
-	//QMutex _timeoutLock;
-	//QWaitCondition _condTimeout;
-	SmlEvent _eventRenderDone{false};
-	//XSemphore _event{ 1 };
 
-	bool _requestMode{ false };
-	volatile bool _ctxAcquired{ false };
-	QWaitCondition _condRequest;
+    QThread* _thread{nullptr};
+    SmlThreadGLRender* _render{ nullptr };
+    SmlSemphore _ctxSemphore{ 1 };
 
-	bool _multiThreadMode{ true };
-	
+    bool _requestMode{ false };
+    SmlEvent _eventCtxResponsed{true};
+
+    bool _multiThreadMode{ true };
+
 
 private:
-	void ThreadRender();
-	void Render();
-	void RequestRender();
-	void FinalizeGL();
+    void ThreadRender();
+    void Render();
+    void RequestRender();
+    void FinalizeGL();
 
-	bool MakeCurrentCtx(const char* msg, const char* msg1);
-	void DoneCurrentCtx();
+    bool MakeCurrentCtx(const char* msg, const char* msg1);
+    void DoneCurrentCtx();
 
-	//bool WaitRenderTimeout(ulong mstime);
-
-	void RequestCtx();
+    void RequestCtx();
 
 public slots:
-	void ResponseCtx();
+    void ResponseCtx();
 
 signals:
-	void RequestCtxSignal();
-	void RequestRenderSignal();
-	void RenderFrameDoneSignal();
+    void RequestCtxSignal();
+    void RequestRenderSignal();
+    void RenderFrameDoneSignal();
 
 private:
-	virtual bool event(QEvent* ev) override;
-	//virtual void exposeEvent(QExposeEvent* ev) override;
-	virtual void paintEvent(QPaintEvent* ev) override;
-	virtual void resizeEvent(QResizeEvent* ev) override;
+    virtual bool event(QEvent* ev) override;
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+    virtual void paintEvent(QPaintEvent* ev) override;
+#else
+    virtual void exposeEvent(QExposeEvent* ev) override;
+#endif
+
+    virtual void resizeEvent(QResizeEvent* ev) override;
 
 
 protected:
-	virtual void GLInitialize() = 0;
-	virtual void GLResize(const QSize& size, const QSize& oldSize) = 0;
-	virtual void GLPaint(QPaintDevice* paintDev) = 0;
-	virtual void GLFinalize() = 0;
-
-//protected:
-//	XThreadGLRender* ThreadGLRender();
+    virtual void GLInitialize() = 0;
+    virtual void GLResize(const QSize& size, const QSize& oldSize) = 0;
+    virtual void GLPaint(QPaintDevice* paintDev) = 0;
+    virtual void GLFinalize() = 0;
 
 public:
-	void SetAnimating(bool run);
+    void SetAnimating(bool run);
 
 public:
-	SmlThreadGLWindow(QWindow* parent, bool requestMode = false, bool multiThreadMode = true);
-	virtual ~SmlThreadGLWindow();
+    SmlThreadGLWindow(QWindow* parent, bool requestMode = false, bool multiThreadMode = true);
+    virtual ~SmlThreadGLWindow();
 };
