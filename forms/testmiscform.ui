@@ -21,6 +21,20 @@
      </property>
     </widget>
    </item>
+   <item>
+    <widget class="QPushButton" name="pushButtonTesGlmColumRow">
+     <property name="text">
+      <string>Test Glm Column Row</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="pushButtonTestTBN">
+     <property name="text">
+      <string>Test TBN</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>

@@ -16,6 +16,18 @@ TestMiscForm::~TestMiscForm()
 
 void TestMiscForm::on_pushButtonTestProjMat_clicked()
 {
- SmartLib::AxisCoordTest::Case0_projection();
+    SmartLib::AxisCoordTest::Case0_projection();
+}
+
+
+void TestMiscForm::on_pushButtonTesGlmColumRow_clicked()
+{
+    SmartLib::AxisCoordTest::Case1_glm_colum_row();
+}
+
+
+void TestMiscForm::on_pushButtonTestTBN_clicked()
+{
+    SmartLib::AxisCoordTest::Case2_TBN();
 }
 

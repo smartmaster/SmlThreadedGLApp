@@ -367,6 +367,61 @@ public:
         
     }
 
+public:
+
+    static glm::tmat2x3<T> CalcTangentBitangent(
+                                        const glm::tvec3<T>& p0,
+                                     const glm::tvec3<T>& p1,
+                                     const glm::tvec3<T>& p2,
+                                     const glm::tvec2<T>& q0,
+                                     const glm::tvec2<T>& q1,
+                                     const glm::tvec2<T>& q2 )
+    {
+        glm::tmat2x3<T> matp{
+            p1 - p0,
+                    p2 - p0,
+        };
+
+        glm::tmat2x2<T> matq
+        {
+            q1 - q0,
+                    q2 - q0,
+        };
+
+        glm::tmat2x3<T> result = matp * glm::inverse(matq);
+
+        return result;
+    }
+
+    static glm::tmat2x3<T> CalcTangentBitangentByHand(
+                                        const glm::tvec3<T>& p0,
+                                     const glm::tvec3<T>& p1,
+                                     const glm::tvec3<T>& p2,
+                                     const glm::tvec2<T>& q0,
+                                     const glm::tvec2<T>& q1,
+                                     const glm::tvec2<T>& q2 )
+    {
+        //from https://learnopengl.com/Advanced-Lighting/Normal-Mapping
+        glm::tvec3<T> edge1 = p1 - p0;
+        glm::tvec3<T> edge2 = p2 - p0;
+        glm::tvec2<T> deltaUV1 = q1 - q0;
+        glm::tvec2<T> deltaUV2 = q2 - q0;
+
+
+        T f = T{1} / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+         glm::tmat2x3<T> result;
+        result[0].x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        result[0].y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        result[0].z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+
+        result[1].x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        result[1].y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        result[1].z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+        return result;
+    }
+
 
 public:
     static glm::tmat3x3<T> RotateMat(T radians, const glm::tvec3<T>& rotationAxis)
@@ -402,5 +457,8 @@ public:
 
         return matR * matRX * matInv;
     }
+
+
+
 };
 }

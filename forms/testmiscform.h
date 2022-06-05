@@ -18,6 +18,10 @@ public:
 private slots:
     void on_pushButtonTestProjMat_clicked();
 
+    void on_pushButtonTesGlmColumRow_clicked();
+
+    void on_pushButtonTestTBN_clicked();
+
 private:
     Ui::TestMiscForm *ui;
 };
