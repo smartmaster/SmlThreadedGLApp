@@ -252,13 +252,13 @@ void SmlThreadGLWindow::DoneCurrentCtx()
 
 void SmlThreadGLWindow::RequestCtx()
 {
-    emit RequestCtxSignal();
+    emit RequestCtxSignal(/*QThread::currentThread()*/);
 
     const ulong SML_INFINITE = -1UL;
     _eventCtxResponsed.Wait(SML_INFINITE);
 }
 
-void SmlThreadGLWindow::ResponseCtx()
+void SmlThreadGLWindow::ResponseCtx(/*QThread* targetThread*/)
 {
     const ulong SML_INFINITE = -1UL;
     bool waitOk = _ctxSemphore.Wait(SML_INFINITE);

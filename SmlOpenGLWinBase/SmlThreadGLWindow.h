@@ -70,10 +70,10 @@ private:
     void RequestCtx();
 
 public slots:
-    void ResponseCtx();
+    void ResponseCtx(/*QThread* targetThread*/);
 
 signals:
-    void RequestCtxSignal();
+    void RequestCtxSignal(/*QThread* targetThread*/);
     void RequestRenderSignal();
     void RenderFrameDoneSignal();
 
