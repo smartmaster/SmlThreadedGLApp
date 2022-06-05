@@ -60,6 +60,41 @@ private:
 
 public:
 
+    template<typename T>
+    static void Test3Vertices(const glm::tvec3<T>& p0,
+                                                                const glm::tvec3<T>& p1,
+                                                                const glm::tvec3<T>& p2,
+                                                                const glm::tvec2<T>& q0,
+                                                                const glm::tvec2<T>& q1,
+                                                                const glm::tvec2<T>& q2)
+    {
+        const glm::tvec3<T>* vv3[] = {&p0, &p1, &p2};
+        const glm::tvec2<T>* vv2[] = {&q0, &q1, &q2};
+
+        vector<glm::tmat2x3<T>> vecmat;
+        for(int offset = 0; offset < 3; ++ offset)
+        {
+            glm::tmat2x3<T> matTB = AxisCoord<T>::CalcTangentBitangent(
+                                             *vv3[(offset)%3],
+                                             *vv3[(offset+1)%3],
+                                             *vv3[(offset+2)%3],
+                                             *vv2[(offset)%3],
+                                             *vv2[(offset+1)%3],
+                                             *vv2[(offset+2)%3]);
+            qDebug() << glm::to_string(matTB).c_str();
+            T dotpct = glm::dot(matTB[0], matTB[1]);
+            qDebug() << "The dot product is " << dotpct << Qt::endl<< Qt::endl;
+
+            vecmat.push_back(matTB);
+            if(3 == vecmat.size())
+            {
+                const T eps = 1e-5;
+                assert(CompareMat(vecmat[0], vecmat[1], eps));
+                assert(CompareMat(vecmat[1], vecmat[2], eps));
+            }
+        }
+    }
+
     static void Case2_TBN()
     {
         using T = double;
@@ -84,6 +119,14 @@ public:
 //            qDebug() << glm::to_string(q0).c_str();
 //            qDebug() << glm::to_string(q1).c_str();
 //            qDebug() << glm::to_string(q2).c_str();
+
+            Test3Vertices(                                             p0,
+                                                                       p1,
+                                                                       p2,
+                                                                       q0,
+                                                                       q1,
+                                                                       q2);
+
             glm::tmat2x3<T> matTB = AxisCoord<T>::CalcTangentBitangent(
                                              p0,
                                              p1,
