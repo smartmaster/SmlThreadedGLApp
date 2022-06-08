@@ -501,14 +501,16 @@ void SmlGLWindowTriangle::GLPaint(QPaintDevice* paintDev)
 	}
 	glProgramUniformMatrix4fv(_programId, _mvpLocation, 1, GL_FALSE, glm::value_ptr(mvp));
 
-	if (-1 == _texCoordLocation)
+    const int texUnit = 2;
+    if (-1 == _texSamplerLocation)
 	{
-		_texCoordLocation = glGetUniformLocation(_programId, "tex");
+        _texSamplerLocation = glGetUniformLocation(_programId, "tex");
 	}
-	glProgramUniform1i(_programId, _texCoordLocation, 0);
+    glProgramUniform1i(_programId, _texSamplerLocation, texUnit);
 
-	//glActiveTexture(GL_TEXTURE0);
-	glBindTextureUnit(0, _texture);
+
+    glActiveTexture(GL_TEXTURE0 + texUnit);
+    glBindTextureUnit(texUnit, _texture);
 
 
 	glDrawElements(GL_TRIANGLES, sizeof(oglindics) / sizeof(oglindics[0]), GL_UNSIGNED_INT, 0);
@@ -535,9 +537,10 @@ void SmlGLWindowTriangle::GLPaint(QPaintDevice* paintDev)
 //    glDrawElements(GL_LINES, sizeof(oglLineindics)/sizeof(oglLineindics[0]), GL_UNSIGNED_INT, 0);
 
 	/////////////////////////////////////////////////////////////////
-	glBindTextureUnit(0, 0);
+    glBindTextureUnit(texUnit, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
+    glActiveTexture(GL_TEXTURE0);
 
 	/////////////////////////////////////////////////////////////////
 	//context()->swapBuffers(context()->surface()); //no need to call swapBuffers mannually

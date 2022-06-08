@@ -38,7 +38,7 @@ private:
 
 
 	GLint _mvpLocation{ -1 };
-	GLint _texCoordLocation{ -1 };
+    GLint _texSamplerLocation{ -1 };
 
 	//QTimer* _updateTimer{nullptr};
 
