@@ -61,20 +61,24 @@ static void xxxDelay()
 
 void SmlThreadGLWindow::ThreadRender()
 {
-
+    bool ctxResponsedOk = true;
     if (_requestMode)
     {
         RequestCtx();
+        ctxResponsedOk = _ctxResponsedOk;
     }
 
-    xxxDelay();
+    if(ctxResponsedOk)
+    {
+        xxxDelay();
 
-    Render();
-    _glctx->moveToThread(this->thread());
+        Render();
+        _glctx->moveToThread(this->thread());
 
-    _ctxSemphore.Notify(false); //ok to use opengl context in main thread
+        _ctxSemphore.Notify(false); //ok to use opengl context in main thread
 
-    emit RenderFrameDoneSignal();
+        emit RenderFrameDoneSignal();
+    }
 }
 
 void SmlThreadGLWindow::Render()
@@ -260,13 +264,19 @@ void SmlThreadGLWindow::RequestCtx()
 
 void SmlThreadGLWindow::ResponseCtx(/*QThread* targetThread*/)
 {
-    const ulong SML_INFINITE = -1UL;
-    bool waitOk = _ctxSemphore.Wait(SML_INFINITE);
+    const ulong timeOut = 500;
+    bool waitOk = _ctxSemphore.Wait(timeOut);
     if(waitOk)
     {
         _glctx->moveToThread(_thread);
-        _eventCtxResponsed.Notify(false);
+        _ctxResponsedOk = true;
     }
+    else
+    {
+         _ctxResponsedOk = false;
+    }
+
+    _eventCtxResponsed.Notify(false);
 }
 
 void SmlThreadGLWindow::SetAnimating(bool run)

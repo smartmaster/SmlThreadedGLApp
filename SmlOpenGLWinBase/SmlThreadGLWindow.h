@@ -53,6 +53,7 @@ private:
     SmlSemphore _ctxSemphore{ 1 };
 
     bool _requestMode{ false };
+    bool _ctxResponsedOk{false};
     SmlEvent _eventCtxResponsed{true};
 
     bool _multiThreadMode{ true };

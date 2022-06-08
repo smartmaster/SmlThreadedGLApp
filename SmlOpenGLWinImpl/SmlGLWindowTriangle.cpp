@@ -14,14 +14,14 @@
 #include <glm/gtx/string_cast.hpp>
 
 /////////////////////////////////////////////////////////////////
-inline static constexpr float _logicalUnit = (float)(0.5f);
+inline static constexpr float _logicalUnit = (float)(8.0f);
 inline static constexpr float _logicalHeight = 2.0f * _logicalUnit;
 
 #define SML_SCALE(x) ((x)*(_logicalUnit))
 
 
 /////////////////////////////////////////////////////////////////
-static constexpr float DISTANCE_TRIANGLE = -6.0f;
+//static constexpr float DISTANCE_TRIANGLE = -6.0f;
 static constexpr float DISTANCE_POINT = -4.5f;
 
 static GLfloat oglpos[] =
@@ -214,7 +214,7 @@ void SmlGLWindowTriangle::GLInitialize()
 	glTextureParameteri(
 		_texture,//                GLuint texture,
 		GL_TEXTURE_MIN_FILTER,//    GLenum pname,
-		GL_LINEAR//    GLfloat param
+        GL_LINEAR_MIPMAP_LINEAR//    GLfloat param
 	);
 
 	glTextureParameteri(
@@ -394,7 +394,7 @@ void SmlGLWindowTriangle::GLResize(const QSize& size, const QSize& oldSize)
 	/////////////////////////////////////////////////////////////////
 	float halfWidth = _logicalUnit * w / h;
 
-#if true
+#if 0
 
 	_frustum = glm::frustum<float>(-halfWidth, halfWidth,
 		-_logicalUnit, _logicalUnit,
@@ -402,7 +402,7 @@ void SmlGLWindowTriangle::GLResize(const QSize& size, const QSize& oldSize)
 
 #else
 
-	_frustum = SmartLib::AxisSystem<float>::Ortho(-halfWidth, halfWidth,
+    _frustum = SmartLib::AxisCoord<float>::Frustum(-halfWidth, halfWidth,
 		-_logicalUnit, _logicalUnit,
 		_logicalHeight, 512.0f * _logicalHeight);
 
