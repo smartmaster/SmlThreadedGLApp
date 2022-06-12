@@ -62,11 +62,11 @@ public:
 
     template<typename T>
     static void Test3Vertices(const glm::tvec3<T>& p0,
-                                                                const glm::tvec3<T>& p1,
-                                                                const glm::tvec3<T>& p2,
-                                                                const glm::tvec2<T>& q0,
-                                                                const glm::tvec2<T>& q1,
-                                                                const glm::tvec2<T>& q2)
+                              const glm::tvec3<T>& p1,
+                              const glm::tvec3<T>& p2,
+                              const glm::tvec2<T>& q0,
+                              const glm::tvec2<T>& q1,
+                              const glm::tvec2<T>& q2)
     {
         const glm::tvec3<T>* vv3[] = {&p0, &p1, &p2};
         const glm::tvec2<T>* vv2[] = {&q0, &q1, &q2};
@@ -75,12 +75,12 @@ public:
         for(int offset = 0; offset < 3; ++ offset)
         {
             glm::tmat2x3<T> matTB = AxisCoord<T>::CalcTangentBitangent(
-                                             *vv3[(offset)%3],
-                                             *vv3[(offset+1)%3],
-                                             *vv3[(offset+2)%3],
-                                             *vv2[(offset)%3],
-                                             *vv2[(offset+1)%3],
-                                             *vv2[(offset+2)%3]);
+                        *vv3[(offset)%3],
+                    *vv3[(offset+1)%3],
+                    *vv3[(offset+2)%3],
+                    *vv2[(offset)%3],
+                    *vv2[(offset+1)%3],
+                    *vv2[(offset+2)%3]);
             qDebug() << glm::to_string(matTB).c_str();
             T dotpct = glm::dot(matTB[0], matTB[1]);
             qDebug() << "The dot product is " << dotpct << Qt::endl<< Qt::endl;
@@ -107,50 +107,79 @@ public:
         int index = 0;
         for (int ii = 0; ii < loopCount; ++ii)
         {
+            glm::tvec3<T> normalp0{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};
             glm::tvec3<T> p0{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};
             glm::tvec3<T> p1{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};
             glm::tvec3<T> p2{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};
-            glm::tvec2<T> q0{data[index++%dataSize], data[index++%dataSize]};
-            glm::tvec2<T> q1{data[index++%dataSize], data[index++%dataSize]};
-            glm::tvec2<T> q2{data[index++%dataSize], data[index++%dataSize]};
-//            qDebug() << glm::to_string(p0).c_str();
-//            qDebug() << glm::to_string(p1).c_str();
-//            qDebug() << glm::to_string(p2).c_str();
-//            qDebug() << glm::to_string(q0).c_str();
-//            qDebug() << glm::to_string(q1).c_str();
-//            qDebug() << glm::to_string(q2).c_str();
+            glm::tvec3<T> normalq0{0, 0, data[index++%dataSize]};
+            glm::tvec3<T> q0{data[index++%dataSize], data[index++%dataSize], 0};
+            glm::tvec3<T> q1{data[index++%dataSize], data[index++%dataSize], 0};
+            glm::tvec3<T> q2{data[index++%dataSize], data[index++%dataSize], 0};
+            //            qDebug() << glm::to_string(p0).c_str();
+            //            qDebug() << glm::to_string(p1).c_str();
+            //            qDebug() << glm::to_string(p2).c_str();
+            //            qDebug() << glm::to_string(q0).c_str();
+            //            qDebug() << glm::to_string(q1).c_str();
+            //            qDebug() << glm::to_string(q2).c_str();
 
-            Test3Vertices(                                             p0,
-                                                                       p1,
-                                                                       p2,
-                                                                       q0,
-                                                                       q1,
-                                                                       q2);
+            Test3Vertices(p0,
+                          p1,
+                          p2,
+                          glm::tvec2<T>{q0},
+                          glm::tvec2<T>{q1},
+                          glm::tvec2<T>{q2});
 
             glm::tmat2x3<T> matTB = AxisCoord<T>::CalcTangentBitangent(
-                                             p0,
-                                             p1,
-                                             p2,
-                                             q0,
-                                             q1,
-                                             q2 );
+                        p0,
+                        p1,
+                        p2,
+                        glm::tvec2<T>{q0},
+                        glm::tvec2<T>{q1},
+                        glm::tvec2<T>{q2});
             qDebug() << glm::to_string(matTB).c_str();
             T dotpct = glm::dot(matTB[0], matTB[1]);
             qDebug() << "The dot product is " << dotpct << Qt::endl<< Qt::endl;
 
             glm::tmat2x3<T> matTB2 = AxisCoord<T>::CalcTangentBitangentByHand(
-                                             p0,
-                                             p1,
-                                             p2,
-                                             q0,
-                                             q1,
-                                             q2 );
+                        p0,
+                        p1,
+                        p2,
+                        glm::tvec2<T>{q0},
+                        glm::tvec2<T>{q1},
+                        glm::tvec2<T>{q2} );
             qDebug() << glm::to_string(matTB2).c_str();
             T dotpct2 = glm::dot(matTB2[0], matTB2[1]);
             qDebug() << "The dot product is " << dotpct2 << Qt::endl<< Qt::endl;
 
             const T eps = 1e-5;
             assert(CompareMat(matTB, matTB2, eps));
+
+            auto tbn = AxisCoord<T>::CalcTangentBitangentNormal(
+                        normalp0,
+                        p0,
+                        p1,
+                        p2,
+                        normalq0,
+                        q0,
+                        q1,
+                        q2);
+            auto strtbn = glm::to_string(tbn);
+
+            qDebug() << strtbn.c_str();
+
+            auto matq = glm::tmat3x3<T>{
+                    glm::tvec3<T>{q1-q0},
+                    glm::tvec3<T>{q2-q0},
+                    glm::tvec3<T>{normalq0}
+        };
+            auto matq1 = glm::inverse(tbn) * glm::tmat3x3<T>{
+                    glm::tvec3<T>{p1-p0},
+                    glm::tvec3<T>{p2-p0},
+                    glm::tvec3<T>{normalp0}
+        };
+
+            assert(CompareMat(matq, matq1, eps));
+
         }
     }
 

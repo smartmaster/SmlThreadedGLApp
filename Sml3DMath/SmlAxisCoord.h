@@ -22,13 +22,13 @@ private:
     glm::tvec3<T> _origin{T{0}, T{0}, T{0}}; //in world (absolute) system
 
 public:
-//    using mat4 = glm::tmat4x4<T>;
-//    using mat3 = glm::tmat3x3<T>;
-//    using mat2 = glm::tmat2x2<T>;
+    //    using mat4 = glm::tmat4x4<T>;
+    //    using mat3 = glm::tmat3x3<T>;
+    //    using mat2 = glm::tmat2x2<T>;
 
-//    using vec4 = glm::tvec4<T>;
-//    using vec3 = glm::tvec3<T>;
-//    using vec2 = glm::tvec2<T>;
+    //    using vec4 = glm::tvec4<T>;
+    //    using vec3 = glm::tvec3<T>;
+    //    using vec2 = glm::tvec2<T>;
 
 
 public:
@@ -139,7 +139,7 @@ public:
 
     const glm::tvec3<T>& GetScale() const
     {
-       return _unitLen;
+        return _unitLen;
     }
 
 
@@ -286,22 +286,22 @@ public:
             )
     {
 #if 0
-		//////////////////////////////////////
-		AxisCoord<T> axisSys;
+        //////////////////////////////////////
+        AxisCoord<T> axisSys;
 
-		axisSys.Scale(glm::tvec3<T>{T{ 1 }, T{ 1 }, T{ -1 }})
-			.Translate(glm::tvec3<T>{(left + right) / T{ 2 }, (bottom + top) / T{ 2 }, (zNear + zFar) / T{ 2 }})
-			.Scale(glm::tvec3<T>{(right - left) / T{ 2 }, (top - bottom) / T{ 2 }, (zFar - zNear) / T{ 2 }});
+        axisSys.Scale(glm::tvec3<T>{T{ 1 }, T{ 1 }, T{ -1 }})
+                .Translate(glm::tvec3<T>{(left + right) / T{ 2 }, (bottom + top) / T{ 2 }, (zNear + zFar) / T{ 2 }})
+                .Scale(glm::tvec3<T>{(right - left) / T{ 2 }, (top - bottom) / T{ 2 }, (zFar - zNear) / T{ 2 }});
 
-		auto mat = axisSys.WorldToModelMat();
+        auto mat = axisSys.WorldToModelMat();
 
-		return mat;
+        return mat;
 
 #else
         AxisCoord<T> axisSys;
         axisSys
-            .Translate(glm::tvec3<T>{(left + right) / T{ 2 }, (bottom + top) / T{ 2 }, -(zNear + zFar) / T{ 2 }})
-            .Scale(glm::tvec3<T>{(right - left) / T{ 2 }, (top - bottom) / T{ 2 }, (zNear - zFar) / T{ 2 }});
+                .Translate(glm::tvec3<T>{(left + right) / T{ 2 }, (bottom + top) / T{ 2 }, -(zNear + zFar) / T{ 2 }})
+                .Scale(glm::tvec3<T>{(right - left) / T{ 2 }, (top - bottom) / T{ 2 }, (zNear - zFar) / T{ 2 }});
 
         auto mat = axisSys.WorldToModelMat();
         return mat;
@@ -319,50 +319,50 @@ public:
     {
 
 #if 0
-		//////////////////////////////////////
+        //////////////////////////////////////
 
-		//frustum to cubic
-		T A = -zNear - zFar;
-		T B = -zNear * zFar;
-		glm::tmat4x4<T> matFrustum2Cubic
-		{
-				  -zNear, 0, 0, 0,
-				  0, -zNear, 0, 0,
-				  0, 0, A, 1,
-				  0, 0, B, 0,
-		};
+        //frustum to cubic
+        T A = -zNear - zFar;
+        T B = -zNear * zFar;
+        glm::tmat4x4<T> matFrustum2Cubic
+        {
+            -zNear, 0, 0, 0,
+                    0, -zNear, 0, 0,
+                    0, 0, A, 1,
+                    0, 0, B, 0,
+        };
 
-		//cubic to NDC
-		glm::tmat4x4<T> matOrtho = Ortho(
-			left, right,
-			bottom, top,
-			zNear, zFar);
+        //cubic to NDC
+        glm::tmat4x4<T> matOrtho = Ortho(
+                    left, right,
+                    bottom, top,
+                    zNear, zFar);
 
-		glm::tmat4x4<T> rv = matOrtho * matFrustum2Cubic;
+        glm::tmat4x4<T> rv = matOrtho * matFrustum2Cubic;
 
-		return -rv;
+        return -rv;
 #else
-		//////////////////////////////////////
+        //////////////////////////////////////
 
-		//frustum to cubic
-		T A = zNear + zFar;
-		T B = - zNear * zFar;
-		glm::tmat4x4<T> matFrustum2Cubic
-		{
-				  zNear, 0, 0, 0,
-				  0, zNear, 0, 0,
-				  0, 0, A, -1,
-				  0, 0, -B, 0,
-		};
+        //frustum to cubic
+        T A = zNear + zFar;
+        T B = - zNear * zFar;
+        glm::tmat4x4<T> matFrustum2Cubic
+        {
+            zNear, 0, 0, 0,
+                    0, zNear, 0, 0,
+                    0, 0, A, -1,
+                    0, 0, -B, 0,
+        };
 
-		//cubic to NDC
-		glm::tmat4x4<T> matOrtho = Ortho(
-			left, right,
-			bottom, top,
-			zNear, zFar);
+        //cubic to NDC
+        glm::tmat4x4<T> matOrtho = Ortho(
+                    left, right,
+                    bottom, top,
+                    zNear, zFar);
 
-		glm::tmat4x4<T> rv = matOrtho * matFrustum2Cubic;
-		return rv;
+        glm::tmat4x4<T> rv = matOrtho * matFrustum2Cubic;
+        return rv;
 #endif
         
     }
@@ -378,12 +378,12 @@ public:
 public:
 
     static glm::tmat2x3<T> CalcTangentBitangent(
-                                        const glm::tvec3<T>& p0,
-                                     const glm::tvec3<T>& p1,
-                                     const glm::tvec3<T>& p2,
-                                     const glm::tvec2<T>& q0,
-                                     const glm::tvec2<T>& q1,
-                                     const glm::tvec2<T>& q2 )
+            const glm::tvec3<T>& p0,
+            const glm::tvec3<T>& p1,
+            const glm::tvec3<T>& p2,
+            const glm::tvec2<T>& q0,
+            const glm::tvec2<T>& q1,
+            const glm::tvec2<T>& q2 )
     {
         glm::tmat2x3<T> matp{
             p1 - p0,
@@ -402,12 +402,12 @@ public:
     }
 
     static glm::tmat2x3<T> CalcTangentBitangentByHand(
-                                        const glm::tvec3<T>& p0,
-                                     const glm::tvec3<T>& p1,
-                                     const glm::tvec3<T>& p2,
-                                     const glm::tvec2<T>& q0,
-                                     const glm::tvec2<T>& q1,
-                                     const glm::tvec2<T>& q2 )
+            const glm::tvec3<T>& p0,
+            const glm::tvec3<T>& p1,
+            const glm::tvec3<T>& p2,
+            const glm::tvec2<T>& q0,
+            const glm::tvec2<T>& q1,
+            const glm::tvec2<T>& q2 )
     {
         //from https://learnopengl.com/Advanced-Lighting/Normal-Mapping
         glm::tvec3<T> edge1 = p1 - p0;
@@ -418,7 +418,7 @@ public:
 
         T f = T{1} / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
 
-         glm::tmat2x3<T> result;
+        glm::tmat2x3<T> result;
         result[0].x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
         result[0].y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
         result[0].z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
@@ -426,6 +426,35 @@ public:
         result[1].x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
         result[1].y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
         result[1].z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+
+        return result;
+    }
+
+
+    static glm::tmat3x3<T> CalcTangentBitangentNormal(
+            const glm::tvec3<T>& normalp0, //vertex p0 normal
+            const glm::tvec3<T>& p0, //vertex p0
+            const glm::tvec3<T>& p1, //vertex p1
+            const glm::tvec3<T>& p2, //vertex p2
+            const glm::tvec3<T>& normalq0, //texture q0 normal, (0,0,1) or normal in normal map
+            const glm::tvec3<T>& q0, //texture q0
+            const glm::tvec3<T>& q1, //texture q1
+            const glm::tvec3<T>& q2 )//texture q2
+    {
+        glm::tmat3x3<T> matp{
+            p1 - p0,
+                    p2 - p0,
+                    normalp0
+        };
+
+        glm::tmat3x3<T> matq
+        {
+            q1 - q0,
+                    q2 - q0,
+                    normalq0
+        };
+
+        glm::tmat3x3<T> result = matp * glm::inverse(matq);
 
         return result;
     }
@@ -456,8 +485,8 @@ public:
         glm::tmat3x3<T> matR
         {
             glm::normalize(rotationAxis),
-            glm::normalize(ry),
-            glm::normalize(rz),
+                    glm::normalize(ry),
+                    glm::normalize(rz),
         };
 
         glm::tmat3x3<T> matInv = glm::transpose(matR);
