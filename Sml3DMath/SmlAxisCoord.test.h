@@ -189,6 +189,8 @@ public:
             T top = data[index++ % dataSize];
             T znear = data[index++ % dataSize];
             T zfar = data[index++ % dataSize];
+            T fov = data[index++ % dataSize];
+            T aspect = data[index++ % dataSize];
 
             {
                 auto mat = AxisCoord<T>::Ortho(left, right, bottom, top, znear, zfar);
@@ -199,6 +201,12 @@ public:
             {
                 auto mat = AxisCoord<T>::Frustum(left, right, bottom, top, znear, zfar);
                 auto matGlm = glm::frustum(left, right, bottom, top, znear, zfar);
+                const T eps = 1e-5;
+                assert(CompareMat(mat, matGlm, eps));
+            }
+            {
+                auto mat = AxisCoord<T>::Perspective(fov, aspect, znear, zfar);
+                auto matGlm = glm::perspective(fov, aspect, znear, zfar);
                 const T eps = 1e-5;
                 assert(CompareMat(mat, matGlm, eps));
             }

@@ -367,6 +367,14 @@ public:
         
     }
 
+
+    static glm::tmat4x4<T> Perspective(T fovy, T aspect, T zNear, T zFar)
+    {
+        T height = zNear * glm::tan(fovy/T{2});
+        T width = height * aspect;
+        return Frustum(-width, width, -height, height, zNear, zFar);
+    }
+
 public:
 
     static glm::tmat2x3<T> CalcTangentBitangent(
