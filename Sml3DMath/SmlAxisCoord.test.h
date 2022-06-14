@@ -58,6 +58,22 @@ private:
         return ok;
     }
 
+    template<typename V, typename T>
+    static bool CompareVec(const V& v1, const V& v2, T const eps)
+    {
+        auto str1 = glm::to_string(v1);
+        auto str2 = glm::to_string(v2);
+
+        qDebug() << str1.c_str() << Qt::endl;
+        qDebug() << str2.c_str() << Qt::endl << Qt::endl;
+
+        bool ok = true;
+        auto bv4 = glm::epsilonEqual(v1, v2, eps);
+        ok = glm::all(bv4);
+        assert(ok);
+        return ok;
+    }
+
 public:
 
     template<typename T>
@@ -259,6 +275,54 @@ public:
 
                 const T eps = 1e-5;
                 assert(CompareMat(mat, matGlm, eps));
+            }
+            {
+                glm::tvec3<T> OO{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};
+                glm::tvec3<T> HH{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};
+                glm::tvec3<T> VV{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};
+                glm::tvec3<T> ZZ{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};
+
+
+
+
+                AxisCoord<T> coord;
+                coord.MakeFromOHVZ(OO, HH, VV, ZZ);
+                coord.SetIsBaseAxis(false);
+
+                {
+                    glm::tvec3<T> model{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};
+
+                    auto world = coord.ModelToWorld(model);
+                    auto model1 = coord.WorldToModel(world);
+                    const T eps = 1e-5;
+                    CompareVec(model, model1, eps);
+
+                    auto m2w = coord.ModelToWorldMat();
+                    auto world1 = AxisCoord<T>::M4xP3(m2w, model);
+                    CompareVec(world, world1, eps);
+
+                    auto w2m = coord.WorldToModelMat();
+                    auto model2 = AxisCoord<T>::M4xP3(w2m, world);
+                    CompareVec(model2, model1, eps);
+                }
+
+                {
+                    glm::tvec3<T> world{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};
+
+                    auto model = coord.WorldToModel(world);
+                    auto world1 = coord.ModelToWorld(model);
+                    const T eps = 1e-5;
+                    CompareVec(world, world1, eps);
+
+                    auto m2w = coord.ModelToWorldMat();
+                    auto world2 = AxisCoord<T>::M4xP3(m2w, model);
+                    CompareVec(world2, world, eps);
+
+                    auto w2m = coord.WorldToModelMat();
+                    auto model1 = AxisCoord<T>::M4xP3(w2m, world);
+                    CompareVec(model1, model, eps);
+                }
+
             }
 
         }

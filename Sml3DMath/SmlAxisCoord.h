@@ -20,6 +20,14 @@ private:
     glm::tmat4x4<T> _axis{T{1}};             // the vector of x y z axis
     glm::tvec3<T> _unitLen{T{1},T{1},T{1}};  // unit length of the x y z axis
     glm::tvec3<T> _origin{T{0}, T{0}, T{0}}; //in world (absolute) system
+    bool _isBaseAxis{true};
+
+
+private:
+    glm::tmat4x4<T> InverseAxis() const
+    {
+        return _isBaseAxis? glm::transpose(_axis) : glm::inverse(_axis);
+    }
 
 public:
     //    using mat4 = glm::tmat4x4<T>;
@@ -161,7 +169,7 @@ public:
 
     const glm::tvec3<T> WorldToModel(const glm::tvec3<T>& world) const
     {
-        return M4xP3(glm::transpose(_axis), world - _origin)/_unitLen;
+        return M4xP3(InverseAxis(), world - _origin)/_unitLen;
     }
 
     const glm::tmat4x4<T> ModelToWorldMat() const
@@ -177,7 +185,7 @@ public:
     const glm::tmat4x4<T> WorldToModelMat() const
     {
         auto matTrans = glm::translate(MatIdentity, -_origin);
-        auto matRot = glm::transpose(_axis); // is equal to glm::inverse<T>(_axis)
+        auto matRot = InverseAxis(); // is equal to glm::inverse<T>(_axis)
         auto matScale = glm::scale(MatIdentity, VecAllOne/_unitLen);
         return matScale * matRot * matTrans;
     }
@@ -201,6 +209,7 @@ public:
 
 
     //note: horizontalV verticalV and zV should be orthogonal to each other
+    //if not above, call SetIsBaseAxis(false)
     void MakeFromOHVZ(
             const glm::tvec3<T>& originPos,
             const glm::tvec3<T>& horizontalV,
@@ -211,6 +220,23 @@ public:
         _axis[0] = glm::tvec4<T>{glm::normalize(horizontalV), T{0}};
         _axis[1] = glm::tvec4<T>{glm::normalize(verticalV), T{0}};
         _axis[2] = glm::tvec4<T>{glm::normalize(zV), T{0}};
+    }
+
+    void SetIsBaseAxis(bool isBaseAxis)
+    {
+        _isBaseAxis = isBaseAxis;
+    }
+
+
+    void MakeFromCamera(const glm::tvec3<T> &eye,
+                        const glm::tvec3<T> &center,
+                        const glm::tvec3<T> &up)
+    {
+        //////////////////////////////////////
+        auto zAxis = eye - center; //posive z direction pointing into eye
+        auto xAxis = glm::cross(up, zAxis);
+        auto yAxis = glm::cross(zAxis, xAxis);
+        MakeFromOHVZ(eye, xAxis, yAxis, zAxis);
     }
 
 
