@@ -286,8 +286,17 @@ public:
 
 
                 AxisCoord<T> coord;
-                coord.MakeFromOHVZ(OO, HH, VV, ZZ);
+                coord.MakeFromOHVZ(OO, HH, VV, ZZ, false);
                 coord.SetIsBaseAxis(false);
+                {
+                    const T eps = 1e-5;
+                    auto&  coordAxis = coord.GetAxis();
+                    auto& coordOrigin = coord.GetOrigin();
+                    assert(glm::epsilonEqual(glm::length(OO), glm::length(coordOrigin), eps));
+                    assert(glm::epsilonEqual(glm::length(coordAxis[0]), glm::length(HH), eps));
+                    assert(glm::epsilonEqual(glm::length(coordAxis[1]), glm::length(VV), eps));
+                    assert(glm::epsilonEqual(glm::length(coordAxis[2]), glm::length(ZZ), eps));
+                }
 
                 {
                     glm::tvec3<T> model{data[index++%dataSize], data[index++%dataSize], data[index++%dataSize]};

@@ -214,12 +214,13 @@ public:
             const glm::tvec3<T>& originPos,
             const glm::tvec3<T>& horizontalV,
             const glm::tvec3<T>& verticalV,
-            const glm::tvec3<T>& zV)
+            const glm::tvec3<T>& zV,
+            bool toNormalize)
     {
         _origin = originPos;
-        _axis[0] = glm::tvec4<T>{glm::normalize(horizontalV), T{0}};
-        _axis[1] = glm::tvec4<T>{glm::normalize(verticalV), T{0}};
-        _axis[2] = glm::tvec4<T>{glm::normalize(zV), T{0}};
+        _axis[0] = glm::tvec4<T>{toNormalize ? glm::normalize(horizontalV) : horizontalV, T{0}};
+        _axis[1] = glm::tvec4<T>{toNormalize ? glm::normalize(verticalV) : verticalV, T{0}};
+        _axis[2] = glm::tvec4<T>{toNormalize ? glm::normalize(zV) : zV, T{0}};
     }
 
     void SetIsBaseAxis(bool isBaseAxis)
@@ -236,7 +237,7 @@ public:
         auto zAxis = eye - center; //posive z direction pointing into eye
         auto xAxis = glm::cross(up, zAxis);
         auto yAxis = glm::cross(zAxis, xAxis);
-        MakeFromOHVZ(eye, xAxis, yAxis, zAxis);
+        MakeFromOHVZ(eye, xAxis, yAxis, zAxis, true);
     }
 
 
@@ -299,7 +300,7 @@ public:
         auto yAxis = glm::cross(zAxis, xAxis);
 
         AxisCoord<T> axisSys;
-        axisSys.MakeFromOHVZ(eye, xAxis, yAxis, zAxis);
+        axisSys.MakeFromOHVZ(eye, xAxis, yAxis, zAxis, true);
 
         return axisSys.WorldToModelMat();
     }
