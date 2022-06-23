@@ -12,14 +12,17 @@ template<typename T = double>
 class AxisCoord
 {
 private:
-    inline static const glm::tmat4x4<T> MatIdentity{T{1}};
-    inline static const glm::tvec3<T> VecAllOne{T{1}, T{1}, T{1}};
-    inline static const glm::tvec3<T> VecAllZero{T{0}, T{0}, T{0}};
+    /*inline*/ static constexpr glm::tmat4x4<T> MatE{T{1}};
+    /*inline*/ static constexpr glm::tvec3<T> Vec1s{T{1}, T{1}, T{1}};
+    /*inline*/ static constexpr glm::tvec3<T> Vec0s{T{0}, T{0}, T{0}};
+    /*inline*/ static constexpr glm::tvec3<T> VecX{T{1}, T{0}, T{0}};
+    /*inline*/ static constexpr glm::tvec3<T> VecY{T{0}, T{1}, T{0}};
+    /*inline*/ static constexpr glm::tvec3<T> VecZ{T{0}, T{0}, T{1}};
 
 private:
-    glm::tmat4x4<T> _axis{T{1}};             // the vector of x y z axis
-    glm::tvec3<T> _unitLen{T{1},T{1},T{1}};  // unit length of the x y z axis
-    glm::tvec3<T> _origin{T{0}, T{0}, T{0}}; //in world (absolute) system
+    glm::tmat4x4<T> _axis{MatE};             // the vector of x y z axis
+    glm::tvec3<T> _unitLen{Vec1s};  // unit length of the x y z axis
+    glm::tvec3<T> _origin{Vec0s}; //in world (absolute) system
     bool _isBaseAxis{true};
 
 
@@ -30,56 +33,46 @@ private:
     }
 
 public:
-    //    using mat4 = glm::tmat4x4<T>;
-    //    using mat3 = glm::tmat3x3<T>;
-    //    using mat2 = glm::tmat2x2<T>;
-
-    //    using vec4 = glm::tvec4<T>;
-    //    using vec3 = glm::tvec3<T>;
-    //    using vec2 = glm::tvec2<T>;
-
-
-public:
 
     AxisCoord()
     {
     }
 
-    AxisCoord(const AxisCoord& as) :
-        _axis{as._axis},
-        _unitLen{as._unitLen},
-        _origin{as._origin}
+    AxisCoord(const AxisCoord& ac) :
+        _axis{ac._axis},
+        _unitLen{ac._unitLen},
+        _origin{ac._origin}
     {
     }
 
-    AxisCoord(AxisCoord&& as) :
-        _axis{std::move(as._axis)},
-        _unitLen{std::move(as._unitLen)},
-        _origin{std::move(as._origin)}
+    AxisCoord(AxisCoord&& ac) :
+        _axis{std::move(ac._axis)},
+        _unitLen{std::move(ac._unitLen)},
+        _origin{std::move(ac._origin)}
     {
     }
 
-    const AxisCoord& operator=(const AxisCoord& as)
+    const AxisCoord& operator=(const AxisCoord& ac)
     {
-        _axis = as._axis;
-        _unitLen = as._unitLen;
-        _origin = as._origin;
+        _axis = ac._axis;
+        _unitLen = ac._unitLen;
+        _origin = ac._origin;
         return *this;
     }
 
-    const AxisCoord& operator=(AxisCoord&& as)
+    const AxisCoord& operator=(AxisCoord&& ac)
     {
-        _axis = std::move(as._axis);
-        _unitLen = std::move(as._unitLen);
-        _origin = std::move(as._origin);
+        _axis = std::move(ac._axis);
+        _unitLen = std::move(ac._unitLen);
+        _origin = std::move(ac._origin);
         return *this;
     }
 
     AxisCoord& Reset()
     {
-        _axis = MatIdentity;
-        _unitLen = VecAllOne;
-        _origin = VecAllZero;
+        _axis = MatE;
+        _unitLen = Vec1s;
+        _origin = Vec0s;
         return *this;
     }
 
@@ -103,7 +96,7 @@ public:
     AxisCoord& Rotate(T radians, const glm::tvec3<T>& rotAxis)
     {
         auto rotAxisAbsolutely = M4xV3(_axis, rotAxis);
-        _axis = glm::rotate<T>(MatIdentity, radians, rotAxisAbsolutely) * _axis;
+        _axis = glm::rotate<T>(MatE, radians, rotAxisAbsolutely) * _axis;
         return *this;
     }
 
@@ -111,7 +104,7 @@ public:
     //rotate in absolute (world) coordinates system
     AxisCoord& RotateAbsolutely(T radians, const glm::tvec3<T>& rotAxisAbsolutely)
     {
-        _axis = glm::rotate<T>(MatIdentity, radians, rotAxisAbsolutely) * _axis;
+        _axis = glm::rotate<T>(MatE, radians, rotAxisAbsolutely) * _axis;
         return *this;
     }
 
@@ -174,9 +167,9 @@ public:
 
     const glm::tmat4x4<T> ModelToWorldMat() const
     {
-        auto matScale = glm::scale<T>(MatIdentity, _unitLen);
+        auto matScale = glm::scale<T>(MatE, _unitLen);
 
-        auto matTrans = glm::translate<T>(MatIdentity, _origin);
+        auto matTrans = glm::translate<T>(MatE, _origin);
 
         return matTrans * _axis * matScale;
 
@@ -184,9 +177,9 @@ public:
 
     const glm::tmat4x4<T> WorldToModelMat() const
     {
-        auto matTrans = glm::translate(MatIdentity, -_origin);
+        auto matTrans = glm::translate(MatE, -_origin);
         auto matRot = InverseAxis(); // is equal to glm::inverse<T>(_axis)
-        auto matScale = glm::scale(MatIdentity, VecAllOne/_unitLen);
+        auto matScale = glm::scale(MatE, Vec1s/_unitLen);
         return matScale * matRot * matTrans;
     }
 
@@ -494,14 +487,15 @@ public:
         T ss = glm::sin(radians);
         glm::tmat3x3<T> matRX
         {
-            glm::tvec3<T>{1, 0, 0},     //colunm vector x axis
+            //glm::tvec3<T>{1, 0, 0},     //colunm vector x axis
+            VecX,
             glm::tvec3<T>{0, cc, ss},   //colunm vector y axis
             glm::tvec3<T>{0, -ss, cc}  //colunm vector z axis
         };
 
-        static const glm::tvec3<T> vecx{1, 0, 0};
+        //static const glm::tvec3<T> vecx{1, 0, 0};
 
-        auto rz = glm::cross(vecx, rotationAxis);
+        auto rz = glm::cross(VecX, rotationAxis);
         if(glm::epsilonEqual(glm::length(rz), T{0}, glm::epsilon<T>()*1000))
         {
             static const  glm::tmat3x3<T> matE{1};
