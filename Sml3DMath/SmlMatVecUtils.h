@@ -186,12 +186,6 @@ public:
 
         return matR * matRX * matInv;
     }
-
-
-    static T MixRatio(T p0, T p1, T p)
-    {
-        return (p - p0) / (p1 - p0);
-    }
 };
 }
 
