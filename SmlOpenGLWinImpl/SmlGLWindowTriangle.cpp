@@ -13,6 +13,8 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 
+#include "Sml3DMath/SmlGlmUtils.h"
+
 /////////////////////////////////////////////////////////////////
 inline static constexpr float _logicalUnit = (float)(8.0f);
 inline static constexpr float _logicalHeight = 2.0f * _logicalUnit;
@@ -402,7 +404,7 @@ void SmlGLWindowTriangle::GLResize(const QSize& size, const QSize& oldSize)
 
 #else
 
-    _frustum = SmartLib::AxisCoord<float>::Frustum(-halfWidth, halfWidth,
+    _frustum = SmartLib::GlmUtils<float>::Frustum(-halfWidth, halfWidth,
 		-_logicalUnit, _logicalUnit,
 		_logicalHeight, 512.0f * _logicalHeight);
 

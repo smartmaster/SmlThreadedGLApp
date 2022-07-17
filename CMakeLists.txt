@@ -24,6 +24,9 @@ set(PROJECT_SOURCES
         smlthreadedopenglmainwindow.h
         smlthreadedopenglmainwindow.ui
         ./Sml3DMath/SmlAxisCoord.h
+        ./Sml3DMath/SmlMatVecUtils.h
+        ./Sml3DMath/SmlGlmUtils.h
+        ./Sml3DMath/SmlMiscUtils.h
         ./Sml3DMath/SmlAxisCoord.test.h
         ./SmlOpenGLWinBase/SmlSurfaceFormat.h
         ./SmlOpenGLWinBase/SmlThreadGLWindow.h

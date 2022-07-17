@@ -1,5 +1,5 @@
 #pragma once
-#include "SmlAxisCoord.h"
+
 #include <vector>
 #include <random>
 #include <string>
@@ -8,6 +8,8 @@
 #include <QDebug>
 #include <glm/gtx/string_cast.hpp>
 
+#include "Sml3DMath/SmlGlmUtils.h"
+#include "Sml3DMath/SmlMiscUtils.h"
 
 namespace SmartLib
 {
@@ -84,13 +86,14 @@ public:
                               const glm::tvec2<T>& q1,
                               const glm::tvec2<T>& q2)
     {
+
         const glm::tvec3<T>* vv3[] = {&p0, &p1, &p2};
         const glm::tvec2<T>* vv2[] = {&q0, &q1, &q2};
 
         vector<glm::tmat2x3<T>> vecmat;
         for(int offset = 0; offset < 3; ++ offset)
         {
-            glm::tmat2x3<T> matTB = AxisCoord<T>::CalcTangentBitangent(
+            glm::tmat2x3<T> matTB = MatVecUtils<T>::CalcTangentBitangent(
                         *vv3[(offset)%3],
                     *vv3[(offset+1)%3],
                     *vv3[(offset+2)%3],
@@ -145,7 +148,7 @@ public:
                           glm::tvec2<T>{q1},
                           glm::tvec2<T>{q2});
 
-            glm::tmat2x3<T> matTB = AxisCoord<T>::CalcTangentBitangent(
+            glm::tmat2x3<T> matTB = MatVecUtils<T>::CalcTangentBitangent(
                         p0,
                         p1,
                         p2,
@@ -156,7 +159,7 @@ public:
             T dotpct = glm::dot(matTB[0], matTB[1]);
             qDebug() << "The dot product is " << dotpct << Qt::endl<< Qt::endl;
 
-            glm::tmat2x3<T> matTB2 = AxisCoord<T>::CalcTangentBitangentByHand(
+            glm::tmat2x3<T> matTB2 = MatVecUtils<T>::CalcTangentBitangentByHand(
                         p0,
                         p1,
                         p2,
@@ -170,7 +173,7 @@ public:
             const T eps = 1e-5;
             assert(CompareMat(matTB, matTB2, eps));
 
-            auto tbn = AxisCoord<T>::CalcTangentBitangentNormal(
+            auto tbn = MatVecUtils<T>::CalcTangentBitangentNormal(
                         normalp0,
                         p0,
                         p1,
@@ -216,9 +219,18 @@ public:
         }
     }
 
+    static void CaseMisc()
+    {
+        using T = double;
+        auto rr = MiscUtils<T>::Mix(-100.0, 100.0, -200, 200, 0);
+        assert(rr == 0.0);
+    }
+
     static void Case0_projection()
     {
         using T = double;
+
+         CaseMisc();
 
         const size_t dataSize = 10000;
         vector<T> data(dataSize);
@@ -238,19 +250,19 @@ public:
             T aspect = data[index++ % dataSize];
 
             {
-                auto mat = AxisCoord<T>::Ortho(left, right, bottom, top, znear, zfar);
+                auto mat = GlmUtils<T>::Ortho(left, right, bottom, top, znear, zfar);
                 auto matGlm = glm::ortho(left, right, bottom, top, znear, zfar);
                 const T eps = 1e-5;
                 assert(CompareMat(mat, matGlm, eps));
             }
             {
-                auto mat = AxisCoord<T>::Frustum(left, right, bottom, top, znear, zfar);
+                auto mat = GlmUtils<T>::Frustum(left, right, bottom, top, znear, zfar);
                 auto matGlm = glm::frustum(left, right, bottom, top, znear, zfar);
                 const T eps = 1e-5;
                 assert(CompareMat(mat, matGlm, eps));
             }
             {
-                auto mat = AxisCoord<T>::Perspective(fov, aspect, znear, zfar);
+                auto mat = GlmUtils<T>::Perspective(fov, aspect, znear, zfar);
                 auto matGlm = glm::perspective(fov, aspect, znear, zfar);
                 const T eps = 1e-5;
                 assert(CompareMat(mat, matGlm, eps));
@@ -259,7 +271,7 @@ public:
                 glm::tvec3<T> eye{data[index++ % dataSize], data[index++ % dataSize], data[index++ % dataSize]};
                 glm::tvec3<T> center{data[index++ % dataSize], data[index++ % dataSize], data[index++ % dataSize]};
                 glm::tvec3<T> up{data[index++ % dataSize], data[index++ % dataSize], data[index++ % dataSize]};
-                auto mat = AxisCoord<T>::LookAt(eye, center, up);
+                auto mat = GlmUtils<T>::LookAt(eye, center, up);
                 auto matGlm = glm::lookAt(eye, center, up);
                 const T eps = 1e-5;
                 assert(CompareMat(mat, matGlm, eps));
@@ -268,7 +280,7 @@ public:
                 T radian = data[index++ % dataSize];
                 glm::tvec3<T> rotationAxis{data[index++ % dataSize], data[index++ % dataSize], data[index++ % dataSize]};
 
-                auto mat = AxisCoord<T>::RotateMat(radian, rotationAxis);
+                auto mat = MatVecUtils<T>::RotateMat(radian, rotationAxis);
 
                 static glm::tmat4x4<T> me{T{1}};
                 auto matGlm = glm::tmat3x3<T>{glm::rotate(me, radian, rotationAxis)};
@@ -307,11 +319,11 @@ public:
                     CompareVec(model, model1, eps);
 
                     auto m2w = coord.ModelToWorldMat();
-                    auto world1 = AxisCoord<T>::M4xP3(m2w, model);
+                    auto world1 = MatVecUtils<T>::M4xP3(m2w, model);
                     CompareVec(world, world1, eps);
 
                     auto w2m = coord.WorldToModelMat();
-                    auto model2 = AxisCoord<T>::M4xP3(w2m, world);
+                    auto model2 = MatVecUtils<T>::M4xP3(w2m, world);
                     CompareVec(model2, model1, eps);
                 }
 
@@ -324,11 +336,11 @@ public:
                     CompareVec(world, world1, eps);
 
                     auto m2w = coord.ModelToWorldMat();
-                    auto world2 = AxisCoord<T>::M4xP3(m2w, model);
+                    auto world2 = MatVecUtils<T>::M4xP3(m2w, model);
                     CompareVec(world2, world, eps);
 
                     auto w2m = coord.WorldToModelMat();
-                    auto model1 = AxisCoord<T>::M4xP3(w2m, world);
+                    auto model1 = MatVecUtils<T>::M4xP3(w2m, world);
                     CompareVec(model1, model, eps);
                 }
 
