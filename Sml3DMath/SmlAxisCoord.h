@@ -93,7 +93,7 @@ public:
     //rotate in current coordinates system
     AxisCoord& Rotate(T radians, const glm::tvec3<T>& rotAxis)
     {
-        auto rotAxisAbsolutely = MatVecUtils<T>::M4xV3(_axis, rotAxis);
+        auto rotAxisAbsolutely = MatVecUtils<T>::M4xV3(_axis, rotAxis * _unitLen);
         _axis = glm::rotate<T>(MatVecUtils<T>::MatE, radians, rotAxisAbsolutely) * _axis;
         return *this;
     }
