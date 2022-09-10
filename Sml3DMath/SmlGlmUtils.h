@@ -122,6 +122,61 @@ public:
         T width = height * aspect;
         return Frustum(-width, width, -height, height, zNear, zFar);
     }
+
+
+    //equivilent to glm::ortho
+    static glm::tmat4x4<T> OrthoNegZ(
+            T const left, T const right,
+            T const bottom, T const top,
+            T const zNegNear, T const zNegFar
+            )
+    {
+        AxisCoord<T> axisSys;
+        axisSys
+                .Translate(glm::tvec3<T>{(left + right) / T{ 2 }, (bottom + top) / T{ 2 }, (zNegNear + zNegFar) / T{ 2 }})
+                .Scale(glm::tvec3<T>{(right - left) / T{ 2 }, (top - bottom) / T{ 2 }, -(zNegNear - zNegFar) / T{ 2 }}); //[+1,-1] ==> [-1,+1]
+
+        auto mat = axisSys.WorldToModelMat();
+        return mat;
+    }
+
+    static glm::tmat4x4<T> FrustumNegZ(
+            T const left, T const right,
+            T const bottom, T const top,
+            T const zNegNear, T const zNegFar
+            )
+    {
+
+        //////////////////////////////////////
+
+        //frustum to cubic
+        T A = zNegNear + zNegFar;
+        T B = - zNegNear * zNegFar;
+        glm::tmat4x4<T> matFrustum2Cubic
+        {
+                    zNegNear, 0, 0, 0,
+                    0, zNegNear, 0, 0,
+                    0, 0, A, 1,
+                    0, 0, B, 0,
+        };
+
+        //cubic to NDC
+        glm::tmat4x4<T> matOrtho = OrthoNegZ(
+                    left, right,
+                    bottom, top,
+                    zNegNear, zNegFar);
+
+        glm::tmat4x4<T> rv = matOrtho * matFrustum2Cubic;
+        return rv;
+    }
+
+    static glm::tmat4x4<T> PerspectiveNegZ(T fovy, T aspect, T zNegNear, T zNegFar)
+    {
+        T height = -zNegNear * glm::tan(fovy/T{2});
+        T width = height * aspect;
+        return FrustumNegZ(-width, width, -height, height, zNegNear, zNegFar);
+    }
+
 };
 }
 

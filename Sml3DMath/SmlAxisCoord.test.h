@@ -51,7 +51,7 @@ private:
         {
             auto bv4 = glm::epsilonEqual(mat1[ii], mat2[ii], eps);
             ok = glm::all(bv4);
-            assert(ok);
+            //assert(ok);
             if (!ok)
             {
                 break;
@@ -72,7 +72,7 @@ private:
         bool ok = true;
         auto bv4 = glm::epsilonEqual(v1, v2, eps);
         ok = glm::all(bv4);
-        assert(ok);
+        //assert(ok);
         return ok;
     }
 
@@ -251,21 +251,27 @@ public:
 
             {
                 auto mat = GlmUtils<T>::Ortho(left, right, bottom, top, znear, zfar);
+                auto matNZ = GlmUtils<T>::OrthoNegZ(left, right, bottom, top, -znear, -zfar);
                 auto matGlm = glm::ortho(left, right, bottom, top, znear, zfar);
                 const T eps = 1e-5;
                 assert(CompareMat(mat, matGlm, eps));
+                assert(CompareMat(matNZ, matGlm, eps));
             }
             {
                 auto mat = GlmUtils<T>::Frustum(left, right, bottom, top, znear, zfar);
+                auto matNZ = GlmUtils<T>::FrustumNegZ(left, right, bottom, top, -znear, -zfar);
                 auto matGlm = glm::frustum(left, right, bottom, top, znear, zfar);
                 const T eps = 1e-5;
                 assert(CompareMat(mat, matGlm, eps));
+                assert(CompareMat(-matNZ, matGlm, eps));
             }
             {
                 auto mat = GlmUtils<T>::Perspective(fov, aspect, znear, zfar);
+                auto matNZ = GlmUtils<T>::PerspectiveNegZ(fov, aspect, -znear, -zfar);
                 auto matGlm = glm::perspective(fov, aspect, znear, zfar);
                 const T eps = 1e-5;
                 assert(CompareMat(mat, matGlm, eps));
+                assert(CompareMat(-matNZ, matGlm, eps));
             }
             {
                 glm::tvec3<T> eye{data[index++ % dataSize], data[index++ % dataSize], data[index++ % dataSize]};
