@@ -22,7 +22,7 @@ inline static constexpr float _logicalHeightUnit = (float)(8.0f);
 
 
 /////////////////////////////////////////////////////////////////
-static constexpr float DISTANCE_POINT = -4.5f;
+static constexpr float DISTANCE_POINT = -5.0f;
 
 
 static GLfloat oglpos[] =
