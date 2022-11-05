@@ -79,7 +79,7 @@ public:
     //move along the current axis directions and with the current unit length
     AxisCoord& Translate(const glm::tvec3<T>& offset)
     {
-        _origin += MatVecUtils<T>::M4xP3(_axis, offset * _unitLen);
+        _origin += MatVecUtils<T>::M4xV3(_axis, offset * _unitLen);
         return *this;
     }
 

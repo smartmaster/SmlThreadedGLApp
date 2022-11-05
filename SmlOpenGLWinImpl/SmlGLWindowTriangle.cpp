@@ -16,27 +16,26 @@
 #include "Sml3DMath/SmlGlmUtils.h"
 
 /////////////////////////////////////////////////////////////////
-inline static constexpr float _logicalUnit = (float)(8.0f);
-//inline static constexpr float _logicalHeight = 2.0f * _logicalUnit;
+inline static constexpr float _logicalHeightUnit = (float)(8.0f);
 
-#define SML_SCALE(x) ((x)*(_logicalUnit))
+#define SML_SCALE(x) ((x)*(_logicalHeightUnit))
 
 
 /////////////////////////////////////////////////////////////////
-//static constexpr float DISTANCE_TRIANGLE = -6.0f;
 static constexpr float DISTANCE_POINT = -4.5f;
+
 
 static GLfloat oglpos[] =
 {
-	//    SML_SCALE(1.0f),    SML_SCALE(-1.0f),   SML_SCALE(DISTANCE_TRIANGLE), 1.0f,
-	//    SML_SCALE(0.0f),    SML_SCALE(1.0f),    SML_SCALE(DISTANCE_TRIANGLE), 1.0f,
-	//    SML_SCALE(-1.0f),   SML_SCALE(-1.0f),   SML_SCALE(DISTANCE_TRIANGLE), 1.0f,
-	//    SML_SCALE(0.0f),    SML_SCALE(0.0f),    SML_SCALE(DISTANCE_POINT), 1.0f,
+		-1, -1, 0, 1,
+		+1, -1, 0, 1,
+		+1, +1, 0, 1,
+		-1, +1, 0, 1,
 
-		SML_SCALE(1.0f),    SML_SCALE(-1.0f),   SML_SCALE(0.0f), 1.0f,
-		SML_SCALE(0.0f),    SML_SCALE(1.0f),    SML_SCALE(0.0f), 1.0f,
-		SML_SCALE(-1.0f),   SML_SCALE(-1.0f),   SML_SCALE(0.0f), 1.0f,
-		SML_SCALE(0.0f),    SML_SCALE(0.0f),    SML_SCALE(-1.5f), 1.0f,
+		-1, -1, -3, 1,
+		+1, -1, -3, 1,
+		+1, +1, -3, 1,
+		-1, +1, -3, 1,
 };
 
 static GLfloat oglcolor[] =
@@ -45,23 +44,36 @@ static GLfloat oglcolor[] =
 	0.0f, 1.0f, 0.0f, 1.0f,
 	0.0f, 0.0f, 1.0f, 1.0f,
 	1.0f, 1.0f, 1.0f, 1.0f,
+
+	1.0f, 0.0f, 0.0f, 1.0f,
+	0.0f, 1.0f, 0.0f, 1.0f,
+	0.0f, 0.0f, 1.0f, 1.0f,
+	1.0f, 1.0f, 1.0f, 1.0f,
 };
 
 static GLfloat texCoords[] =
 {
-	1.0f, 0.0f,
-	0.0f, 1.0f,
-	0.0f, 0.0f,
-	1.0f, 1.0f,
+	0, 0,
+	1, 0,
+	1, 1,
+	0, 1,
+
+	0, 0,
+	1, 0,
+	1, 1,
+	0, 1,
 };
 
 
+#define QURAD_TO_TRIANGLE(p0, p1, p2, p3)  p0, p1, p2, p2, p3, p0
 
 static GLuint oglindics[] = {
-	0, 2, 1,
-	0, 1, 3,
-	1, 2, 3,
-	0, 3, 2,
+	QURAD_TO_TRIANGLE(0,1,2,3),
+	QURAD_TO_TRIANGLE(1,5,6,2),
+	QURAD_TO_TRIANGLE(5,4,7,6),
+	QURAD_TO_TRIANGLE(4,0,3,7),
+	QURAD_TO_TRIANGLE(3,2,6,7),
+	QURAD_TO_TRIANGLE(4,5,1,0),
 };
 
 
@@ -134,7 +146,9 @@ void SmlGLWindowTriangle::GLInitialize()
 	//ResetEye();
 	_axisEye.Reset();
 	_axisModel.Reset();
-	_axisModel.SetOrigin(glm::vec3(0.0f, 0.0f, SML_SCALE(DISTANCE_POINT)));
+	_axisModel.Translate(glm::vec3(0.0f, 0.0f, SML_SCALE(DISTANCE_POINT)));
+	_axisModel.Scale(glm::vec3(_logicalHeightUnit, _logicalHeightUnit, _logicalHeightUnit));
+	
 
 	/////////////////////////////////////////////////////////////////
 	//initializeOpenGLFunctions();
@@ -394,7 +408,7 @@ void SmlGLWindowTriangle::GLResize(const QSize& size, const QSize& oldSize)
 
 
 	/////////////////////////////////////////////////////////////////
-	float halfWidth = _logicalUnit * w / h;
+	float halfWidth = _logicalHeightUnit * w / h;
 
 #if 0
 
@@ -404,8 +418,8 @@ void SmlGLWindowTriangle::GLResize(const QSize& size, const QSize& oldSize)
 #else
 
     _frustum = SmartLib::GlmUtils<float>::Frustum(-halfWidth, halfWidth,
-		-_logicalUnit, _logicalUnit,
-		2 * _logicalUnit, 1024 * _logicalUnit);
+		-_logicalHeightUnit, _logicalHeightUnit,
+		2 * _logicalHeightUnit, 1024 * _logicalHeightUnit);
 
 #endif
 
@@ -650,7 +664,8 @@ void SmlGLWindowTriangle::keyPressEvent(QKeyEvent* ev)
 		//ResetEye();
 		_axisEye.Reset();
 		_axisModel.Reset();
-		_axisModel.SetOrigin(glm::vec3(0.0f, 0.0f, SML_SCALE(DISTANCE_POINT)));
+		_axisModel.Translate(glm::vec3(0.0f, 0.0f, SML_SCALE(DISTANCE_POINT)));
+		_axisModel.Scale(glm::vec3(_logicalHeightUnit, _logicalHeightUnit, _logicalHeightUnit));
 		requestUpdate();
 	}
 	break;
