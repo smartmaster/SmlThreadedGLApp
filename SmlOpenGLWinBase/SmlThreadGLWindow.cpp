@@ -40,7 +40,7 @@ void SmlThreadGLWindow::RequestRender()
         return;
     }
 
-    _glctx->moveToThread(_thread);
+    _glctx->moveToThread(_thread); //ctx main thread --> render thread
 
 
     emit RequestRenderSignal();
@@ -73,7 +73,7 @@ void SmlThreadGLWindow::ThreadRender()
         xxxDelay();
 
         Render();
-        _glctx->moveToThread(this->thread());
+        _glctx->moveToThread(this->thread()); //ctx render thread --> main thread
 
         _ctxSemphore.Notify(false); //ok to use opengl context in main thread
 
@@ -297,11 +297,9 @@ GLuint SmlThreadGLWindow::CreateProgram(const GLchar* const vertSource, const GL
     glShaderSource(vertShader, 1, &vertSource, NULL); // vertex_shader_source is a GLchar* containing glsl shader source code
     glCompileShader(vertShader);
     checkCompileErrors(vertShader, "VERTEX");
-    
-    
 
     ///////////////////////////////////////////////////////////////
-    GLuint geomShader = (GLuint)(-1);
+    GLuint geomShader = 0;
     if (geomSource && geomSource[0])
     {
         geomShader = glCreateShader(GL_GEOMETRY_SHADER);
@@ -319,23 +317,43 @@ GLuint SmlThreadGLWindow::CreateProgram(const GLchar* const vertSource, const GL
     /////////////////////////////////////////////////////////////////
     GLuint programId = glCreateProgram();
 
-    glAttachShader(programId, vertShader);
-    if ((GLuint)(-1) != geomShader)
+    if (vertShader)
+    {
+        glAttachShader(programId, vertShader);
+    }
+
+    if (geomShader)
     {
         glAttachShader(programId, geomShader);
     }
-    glAttachShader(programId, fragShader);
+
+    if (fragShader)
+    {
+        glAttachShader(programId, fragShader);
+    }
+    
 
     glLinkProgram(programId);
     checkCompileErrors(programId, "PROGRAM");
 
     /////////////////////////////////////////////////////////////////
-    glDeleteShader(vertShader);
-    vertShader = 0;
+    if (vertShader)
+    {
+        glDeleteShader(vertShader);
+        vertShader = 0;
+    }
 
-    glDeleteShader(fragShader);
-    fragShader = 0;
+    if (geomShader)
+    {
+        glDeleteShader(geomShader);
+        geomShader = 0;
+    }
 
+    if (fragShader)
+    {
+        glDeleteShader(fragShader);
+        fragShader = 0;
+    }
 
     return programId;
 }
