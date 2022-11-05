@@ -40,15 +40,15 @@ static GLfloat oglpos[] =
 
 static GLfloat oglcolor[] =
 {
-	1.0f, 0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f, 1.0f,
+	1,0,0,1,
+	0,1,0,1,
+	0,0,1,0,
+	1,1,1,1,
 
-	1.0f, 0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f, 1.0f,
-	1.0f, 1.0f, 1.0f, 1.0f,
+	1,0,0,1,
+	0,1,0,1,
+	0,0,1,0,
+	1,1,1,1,
 };
 
 static GLfloat texCoords[] =
@@ -111,34 +111,6 @@ static GLuint oglindics[] = {
 //};
 
 
-void SmlGLWindowTriangle::CreateProgram(const GLchar* const vertSource, const GLchar* const  fragSource)
-{
-	/////////////////////////////////////////////////////////////////
-	GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertShader, 1, &vertSource, NULL); // vertex_shader_source is a GLchar* containing glsl shader source code
-	glCompileShader(vertShader);
-
-	/////////////////////////////////////////////////////////////////
-	GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragShader, 1, &fragSource, NULL); // vertex_shader_source is a GLchar* containing glsl shader source code
-	glCompileShader(fragShader);
-
-	/////////////////////////////////////////////////////////////////
-	_programId = glCreateProgram();
-
-	glAttachShader(_programId, vertShader);
-	glAttachShader(_programId, fragShader);
-
-	glLinkProgram(_programId);
-
-	/////////////////////////////////////////////////////////////////
-	glDeleteShader(vertShader);
-	vertShader = 0;
-
-	glDeleteShader(fragShader);
-	fragShader = 0;
-}
-
 
 void SmlGLWindowTriangle::GLInitialize()
 {
@@ -168,7 +140,7 @@ void SmlGLWindowTriangle::GLInitialize()
 	QByteArray fragBuffer = filefrag.readAll();
 	filefrag.close();
 
-	CreateProgram(vertBuffer.data(), fragBuffer.data());
+	_programId = CreateProgram(vertBuffer.data(), nullptr, fragBuffer.data());
 
 	/////////////////////////////////////////////////////////////////
 	glCreateBuffers(1, &_vboPos);

@@ -74,9 +74,7 @@ private:
 private slots:
 	void on_timeout();
 
-private:
-	void CreateProgram(const GLchar* const vertSource, const GLchar* const  fragSource);
-	//void ResetEye();
+
 
 public:
 	SmlGLWindowTriangle(QWindow *parent);

@@ -81,6 +81,11 @@ private:
 
     void RequestCtx();
 
+private:
+    void checkCompileErrors(GLuint shader, const char* type);
+protected:
+    GLuint CreateProgram(const GLchar* const vertSource, const GLchar* const  geomSource, const GLchar* const  fragSource);
+
 public slots:
     void ResponseCtx(/*QThread* targetThread*/);
 

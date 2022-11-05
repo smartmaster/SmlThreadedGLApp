@@ -262,6 +262,84 @@ void SmlThreadGLWindow::RequestCtx()
     _eventCtxResponsed.Wait(SML_INFINITE);
 }
 
+inline void SmlThreadGLWindow::checkCompileErrors(GLuint shader, const char* type)
+{
+    GLint success;
+    GLchar infoLog[1024];
+    if (0 == stricmp(type, "PROGRAM"))
+    {
+        glGetProgramiv(shader, GL_LINK_STATUS, &success);
+        if (!success)
+        {
+            glGetProgramInfoLog(shader, _countof(infoLog), NULL, infoLog);
+            qDebug() << "ERROR::PROGRAM_LINKING_ERROR of type: " << type
+                << "\n" << infoLog
+                << "\n -- --------------------------------------------------- -- ";
+        }
+    }
+    else
+    {
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success)
+        {
+            glGetShaderInfoLog(shader, _countof(infoLog), NULL, infoLog);
+            qDebug() << "ERROR::SHADER_COMPILATION_ERROR of type: " << type
+                << "\n" << infoLog
+                << "\n -- --------------------------------------------------- -- ";
+        }
+    }
+}
+
+GLuint SmlThreadGLWindow::CreateProgram(const GLchar* const vertSource, const GLchar* const geomSource, const GLchar* const fragSource)
+{
+    /////////////////////////////////////////////////////////////////
+    GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertShader, 1, &vertSource, NULL); // vertex_shader_source is a GLchar* containing glsl shader source code
+    glCompileShader(vertShader);
+    checkCompileErrors(vertShader, "VERTEX");
+    
+    
+
+    ///////////////////////////////////////////////////////////////
+    GLuint geomShader = (GLuint)(-1);
+    if (geomSource && geomSource[0])
+    {
+        geomShader = glCreateShader(GL_GEOMETRY_SHADER);
+        glShaderSource(geomShader, 1, &geomSource, NULL); // vertex_shader_source is a GLchar* containing glsl shader source code
+        glCompileShader(geomShader);
+        checkCompileErrors(geomShader, "GEOMETRY");
+    }
+
+    /////////////////////////////////////////////////////////////////
+    GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragShader, 1, &fragSource, NULL); // vertex_shader_source is a GLchar* containing glsl shader source code
+    glCompileShader(fragShader);
+    checkCompileErrors(fragShader, "FRAGMENT");
+
+    /////////////////////////////////////////////////////////////////
+    GLuint programId = glCreateProgram();
+
+    glAttachShader(programId, vertShader);
+    if ((GLuint)(-1) != geomShader)
+    {
+        glAttachShader(programId, geomShader);
+    }
+    glAttachShader(programId, fragShader);
+
+    glLinkProgram(programId);
+    checkCompileErrors(programId, "PROGRAM");
+
+    /////////////////////////////////////////////////////////////////
+    glDeleteShader(vertShader);
+    vertShader = 0;
+
+    glDeleteShader(fragShader);
+    fragShader = 0;
+
+
+    return programId;
+}
+
 void SmlThreadGLWindow::ResponseCtx(/*QThread* targetThread*/)
 {
     const ulong timeOut = 500;
