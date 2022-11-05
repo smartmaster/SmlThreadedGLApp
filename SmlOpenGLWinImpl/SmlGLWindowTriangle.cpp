@@ -17,7 +17,7 @@
 
 /////////////////////////////////////////////////////////////////
 inline static constexpr float _logicalUnit = (float)(8.0f);
-inline static constexpr float _logicalHeight = 2.0f * _logicalUnit;
+//inline static constexpr float _logicalHeight = 2.0f * _logicalUnit;
 
 #define SML_SCALE(x) ((x)*(_logicalUnit))
 
@@ -400,13 +400,12 @@ void SmlGLWindowTriangle::GLResize(const QSize& size, const QSize& oldSize)
 
 	_frustum = glm::frustum<float>(-halfWidth, halfWidth,
 		-_logicalUnit, _logicalUnit,
-		_logicalHeight, 512.0f * _logicalHeight);
-
+		2 * _logicalUnit , 1024 * _logicalUnit);
 #else
 
     _frustum = SmartLib::GlmUtils<float>::Frustum(-halfWidth, halfWidth,
 		-_logicalUnit, _logicalUnit,
-		_logicalHeight, 512.0f * _logicalHeight);
+		2 * _logicalUnit, 1024 * _logicalUnit);
 
 #endif
 

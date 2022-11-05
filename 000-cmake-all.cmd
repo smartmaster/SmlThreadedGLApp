@@ -1,2 +1,2 @@
-cmake .. -DCMAKE_PREFIX_PATH=E:\sss-dev\qt-everywhere-src-dev
+cmake .. -DCMAKE_PREFIX_PATH=C:\sss-data\qt-everywhere-src-6.4.0-debug
 cmake --build . --config Debug

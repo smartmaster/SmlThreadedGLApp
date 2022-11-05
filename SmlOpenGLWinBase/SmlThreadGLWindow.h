@@ -2,7 +2,6 @@
 
 #include <QObject>
 #include <QWindow>
-#include <QOpenGLFunctions_4_5_Core>
 #include <QPaintDevice>
 #include <QEvent>
 #include <QExposeEvent>
@@ -13,6 +12,16 @@
 #include <QMutex>
 #include <QThread>
 #include <QWaitCondition>
+
+#if defined(_USE_OPENGL_COMPT)
+#include <QOpenGLFunctions_4_5_Compatibility>
+#define QOpenGLFunctions_PROFILE QOpenGLFunctions_4_5_Compatibility
+#else
+#include <QOpenGLFunctions_4_5_Core>
+#define QOpenGLFunctions_PROFILE QOpenGLFunctions_4_5_Core
+#endif
+
+
 #include "SmlWaitObject.h"
 
 class SmlThreadGLWindow;
@@ -30,7 +39,9 @@ public slots:
     void Render();
 };
 
-class SmlThreadGLWindow : public QWindow, protected QOpenGLFunctions_4_5_Core
+
+
+class SmlThreadGLWindow : public QWindow, protected QOpenGLFunctions_PROFILE
 {
     Q_OBJECT
 
