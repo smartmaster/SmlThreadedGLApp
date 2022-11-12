@@ -32,10 +32,10 @@ static GLfloat oglpos[] =
 		+1, +1, 0, 1,
 		-1, +1, 0, 1,
 
-		-1, -1, -3, 1,
-		+1, -1, -3, 1,
-		+1, +1, -3, 1,
-		-1, +1, -3, 1,
+		-1, -1, -6, 1,
+		+1, -1, -6, 1,
+		+1, +1, -6, 1,
+		-1, +1, -6, 1,
 };
 
 static GLfloat oglcolor[] =
@@ -382,16 +382,18 @@ void SmlGLWindowTriangle::GLResize(const QSize& size, const QSize& oldSize)
 	/////////////////////////////////////////////////////////////////
 	float halfWidth = _logicalHeightUnit * w / h;
 
+	_nearPlane = 2 * _logicalHeightUnit;
+	_farPlane = 512 * _logicalHeightUnit;
 #if 0
 
 	_frustum = glm::frustum<float>(-halfWidth, halfWidth,
 		-_logicalUnit, _logicalUnit,
-		2 * _logicalUnit , 1024 * _logicalUnit);
+		_nearPlane, _farPlane);
 #else
 
     _frustum = SmartLib::GlmUtils<float>::Frustum(-halfWidth, halfWidth,
 		-_logicalHeightUnit, _logicalHeightUnit,
-		2 * _logicalHeightUnit, 1024 * _logicalHeightUnit);
+		_nearPlane, _farPlane);
 
 #endif
 
@@ -494,6 +496,20 @@ void SmlGLWindowTriangle::GLPaint(QPaintDevice* paintDev)
         _texSamplerLocation = glGetUniformLocation(_programId, "tex");
 	}
     glProgramUniform1i(_programId, _texSamplerLocation, texUnit);
+
+	if (-1 == _nearFarMaxFogLocation)
+	{
+		_nearFarMaxFogLocation = glGetUniformLocation(_programId, "nearFarMaxFog");
+	}
+	glm::vec3 nearFarMaxFog{_nearPlane, _farPlane, 6 * _nearPlane };
+	glProgramUniform3fv(_programId, _nearFarMaxFogLocation, 1, glm::value_ptr(nearFarMaxFog));
+
+	if (-1 == _fogColorLocation)
+	{
+		_fogColorLocation = glGetUniformLocation(_programId, "fogColor");
+	}
+	glm::vec4 fogColor{ bgcolor.redF(), bgcolor.greenF(), bgcolor.blueF(), 1.0f };
+	glProgramUniform4fv(_programId, _fogColorLocation, 1, glm::value_ptr(fogColor));
 
 
     glActiveTexture(GL_TEXTURE0 + texUnit);

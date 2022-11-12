@@ -40,6 +40,9 @@ private:
 	GLint _mvpLocation{ -1 };
     GLint _texSamplerLocation{ -1 };
 
+	GLint _nearFarMaxFogLocation{ -1 };
+	GLint _fogColorLocation{ -1 };
+
 	//QTimer* _updateTimer{nullptr};
 
 
@@ -59,6 +62,10 @@ private:
 	SmartLib::AxisCoord<float> _axisModel;
 	SmartLib::AxisCoord<float> _axisEye;
 	glm::mat4 _frustum;
+
+	float _nearPlane{ 0 };
+	float _farPlane{ 0 };
+	//QColor _bgcolor;
 
 
 
