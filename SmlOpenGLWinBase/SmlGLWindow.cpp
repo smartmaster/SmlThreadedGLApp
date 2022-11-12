@@ -1,10 +1,10 @@
 #include <QtGlobal>
 
-#include "SmlThreadGLWindow.h"
+#include "SmlGLWindow.h"
 #include <QMutexLocker>
 
 
-SmlThreadGLRender::SmlThreadGLRender(QObject* parent, SmlThreadGLWindow* window) :
+SmlThreadGLRender::SmlThreadGLRender(QObject* parent, SmlGLWindow* window) :
     QObject{ parent },
     _glwin{ window }
 {
@@ -16,20 +16,28 @@ void SmlThreadGLRender::Render()
 }
 
 
-void SmlThreadGLWindow::RequestRender()
+void SmlGLWindow::RequestRender()
 {
-
     if (!_multiThreadMode)
     {
         Render();
-        emit RenderFrameDoneSignal();
+        emit RenderFrameDoneSignal(); //SmlThreadGLWindow::requestUpdate
+		if constexpr (false)
+		{
+            SML_QTBase::requestUpdate();
+		}
+
         return;
     }
 
 
     if (_requestMode)
     {
-        emit RequestRenderSignal();
+        emit RequestRenderSignal(); //SmlThreadGLRender::Render
+		if constexpr (false)
+		{
+            _render->Render();
+		}
         return;
     }
 
@@ -43,7 +51,11 @@ void SmlThreadGLWindow::RequestRender()
     _glctx->moveToThread(_thread); //ctx main thread --> render thread
 
 
-    emit RequestRenderSignal();
+    emit RequestRenderSignal(); //SmlThreadGLRender::Render
+	if constexpr (false)
+	{
+        _render->Render();
+	}
 }
 
 static void xxxDelay()
@@ -59,7 +71,7 @@ static void xxxDelay()
     }
 }
 
-void SmlThreadGLWindow::ThreadRender()
+void SmlGLWindow::ThreadRender()
 {
     bool ctxResponsedOk = true;
     if (_requestMode)
@@ -77,11 +89,15 @@ void SmlThreadGLWindow::ThreadRender()
 
         _ctxSemphore.Notify(false); //ok to use opengl context in main thread
 
-        emit RenderFrameDoneSignal();
+        emit RenderFrameDoneSignal(); //SmlThreadGLWindow::requestUpdate
+        if constexpr (false)
+        {
+            SML_QTBase::requestUpdate();
+        }
     }
 }
 
-void SmlThreadGLWindow::Render()
+void SmlGLWindow::Render()
 {
     if (isExposed())
     {
@@ -97,7 +113,7 @@ void SmlThreadGLWindow::Render()
 }
 
 #if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
-void SmlThreadGLWindow::paintEvent(QPaintEvent* ev)
+void SmlGLWindow::paintEvent(QPaintEvent* ev)
 {
     RequestRender();
 }
@@ -127,7 +143,7 @@ static void APIENTRY GLDebugPoc(
     qDebug() << str;
 }
 
-void SmlThreadGLWindow::resizeEvent(QResizeEvent* ev)
+void SmlGLWindow::resizeEvent(QResizeEvent* ev)
 {
     if (_SurfaceDestroyed)
     {
@@ -177,7 +193,7 @@ void SmlThreadGLWindow::resizeEvent(QResizeEvent* ev)
 }
 
 
-bool SmlThreadGLWindow::event(QEvent* ev)
+bool SmlGLWindow::event(QEvent* ev)
 {
     QEvent::Type et = ev->type();
 
@@ -216,7 +232,7 @@ bool SmlThreadGLWindow::event(QEvent* ev)
     return SML_QTBase::event(ev);
 }
 
-void SmlThreadGLWindow::FinalizeGL()
+void SmlGLWindow::FinalizeGL()
 {
     const ulong SML_INFINITE = -1UL;
     bool waitOk = _ctxSemphore.Wait(SML_INFINITE);
@@ -238,14 +254,14 @@ void SmlThreadGLWindow::FinalizeGL()
     }
 }
 
-bool SmlThreadGLWindow::MakeCurrentCtx(const char* msg, const char* msg1)
+bool SmlGLWindow::MakeCurrentCtx(const char* msg, const char* msg1)
 {
     bool ok = _glctx->makeCurrent(this);
     Q_ASSERT_X(ok && _glctx->isValid(), msg, msg1);
     return ok;
 }
 
-void SmlThreadGLWindow::DoneCurrentCtx()
+void SmlGLWindow::DoneCurrentCtx()
 {
     if (_multiThreadMode) //required for multi threaded mode rendering
     {
@@ -254,15 +270,19 @@ void SmlThreadGLWindow::DoneCurrentCtx()
 
 }
 
-void SmlThreadGLWindow::RequestCtx()
+void SmlGLWindow::RequestCtx()
 {
-    emit RequestCtxSignal(/*QThread::currentThread()*/);
+    emit RequestCtxSignal(); //SmlThreadGLWindow::ResponseCtx
+    if constexpr (false)
+    {
+        SmlGLWindow::ResponseCtx();
+    }
 
     const ulong SML_INFINITE = -1UL;
     _eventCtxResponsed.Wait(SML_INFINITE);
 }
 
-inline void SmlThreadGLWindow::checkCompileErrors(GLuint shader, const char* type)
+inline void SmlGLWindow::checkCompileErrors(GLuint shader, const char* type)
 {
     GLint success;
     GLchar infoLog[1024];
@@ -290,7 +310,7 @@ inline void SmlThreadGLWindow::checkCompileErrors(GLuint shader, const char* typ
     }
 }
 
-GLuint SmlThreadGLWindow::CreateProgram(const GLchar* const vertSource, const GLchar* const geomSource, const GLchar* const fragSource)
+GLuint SmlGLWindow::CreateProgram(const GLchar* const vertSource, const GLchar* const geomSource, const GLchar* const fragSource)
 {
     /////////////////////////////////////////////////////////////////
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
@@ -358,7 +378,7 @@ GLuint SmlThreadGLWindow::CreateProgram(const GLchar* const vertSource, const GL
     return programId;
 }
 
-void SmlThreadGLWindow::ResponseCtx(/*QThread* targetThread*/)
+void SmlGLWindow::ResponseCtx(/*QThread* targetThread*/)
 {
     const ulong timeOut = 500;
     bool waitOk = _ctxSemphore.Wait(timeOut);
@@ -375,23 +395,23 @@ void SmlThreadGLWindow::ResponseCtx(/*QThread* targetThread*/)
     _eventCtxResponsed.Notify(false);
 }
 
-void SmlThreadGLWindow::SetAnimating(bool run)
+void SmlGLWindow::SetAnimating(bool run)
 {
     _animating = run;
     if (_animating)
     {
-        connect(this, &SmlThreadGLWindow::RenderFrameDoneSignal,
-                this, &SmlThreadGLWindow::requestUpdate);
+        connect(this, &SmlGLWindow::RenderFrameDoneSignal,
+                this, &SmlGLWindow::requestUpdate);
         requestUpdate();
     }
     else
     {
-        disconnect(this, &SmlThreadGLWindow::RenderFrameDoneSignal,
-                   this, &SmlThreadGLWindow::requestUpdate);
+        disconnect(this, &SmlGLWindow::RenderFrameDoneSignal,
+                   this, &SmlGLWindow::requestUpdate);
     }
 }
 
-SmlThreadGLWindow::SmlThreadGLWindow(QWindow* parent,
+SmlGLWindow::SmlGLWindow(QWindow* parent,
                                      bool requestMode /*= false*/,
                                      bool multiThreadMode /*= true*/)
     : QWindow(parent),
@@ -408,20 +428,20 @@ SmlThreadGLWindow::SmlThreadGLWindow(QWindow* parent,
 
         connect(_thread, &QThread::finished,
                 _render, &QObject::deleteLater);
-        connect(this, &SmlThreadGLWindow::RequestRenderSignal,
+        connect(this, &SmlGLWindow::RequestRenderSignal,
                 _render, &SmlThreadGLRender::Render);
 
         if (_requestMode)
         {
-            connect(this, &SmlThreadGLWindow::RequestCtxSignal,
-                    this, &SmlThreadGLWindow::ResponseCtx);
+            connect(this, &SmlGLWindow::RequestCtxSignal,
+                    this, &SmlGLWindow::ResponseCtx);
         }
 
         _thread->start();
     }
 }
 
-SmlThreadGLWindow::~SmlThreadGLWindow()
+SmlGLWindow::~SmlGLWindow()
 {
     if (_multiThreadMode)
     {

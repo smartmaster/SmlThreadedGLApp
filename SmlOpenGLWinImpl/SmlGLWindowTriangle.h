@@ -1,17 +1,17 @@
 #pragma once
 
 #include <QObject>
-#include "SmlThreadGLWindow.h"
+#include "SmlGLWindow.h"
 
 #include <glm/glm.hpp>
 #include "SmlAxisCoord.h"
 
-class SmlGLWindowTriangle : public SmlThreadGLWindow
+class SmlGLWindowTriangle : public SmlGLWindow
 {
 	Q_OBJECT
 
 private:
-	using XQTBase = SmlThreadGLWindow;
+	using XQTBase = SmlGLWindow;
 
 private:
 	bool _isAnimating{ false };

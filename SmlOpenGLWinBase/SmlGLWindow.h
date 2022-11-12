@@ -24,16 +24,16 @@
 
 #include "SmlWaitObject.h"
 
-class SmlThreadGLWindow;
+class SmlGLWindow;
 class SmlThreadGLRender : public QObject
 {
     Q_OBJECT
 
 private:
-    SmlThreadGLWindow* _glwin{ nullptr };
+    SmlGLWindow* _glwin{ nullptr };
 
 public:
-    SmlThreadGLRender(QObject* parent, SmlThreadGLWindow* window);
+    SmlThreadGLRender(QObject* parent, SmlGLWindow* window);
 
 public slots:
     void Render();
@@ -41,7 +41,7 @@ public slots:
 
 
 
-class SmlThreadGLWindow : public QWindow, protected QOpenGLFunctions_PROFILE
+class SmlGLWindow : public QWindow, protected QOpenGLFunctions_PROFILE
 {
     Q_OBJECT
 
@@ -116,6 +116,6 @@ public:
     void SetAnimating(bool run);
 
 public:
-    SmlThreadGLWindow(QWindow* parent, bool requestMode = false, bool multiThreadMode = true);
-    virtual ~SmlThreadGLWindow();
+    SmlGLWindow(QWindow* parent, bool requestMode = false, bool multiThreadMode = true);
+    virtual ~SmlGLWindow();
 };

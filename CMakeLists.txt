@@ -29,10 +29,10 @@ set(PROJECT_SOURCES
         ./Sml3DMath/SmlMiscUtils.h
         ./Sml3DMath/SmlAxisCoord.test.h
         ./SmlOpenGLWinBase/SmlSurfaceFormat.h
-        ./SmlOpenGLWinBase/SmlThreadGLWindow.h
+        ./SmlOpenGLWinBase/SmlGLWindow.h
         ./SmlOpenGLWinBase/SmlWaitObject.h
         ./SmlOpenGLWinBase/SmlSurfaceFormat.cpp
-        ./SmlOpenGLWinBase/SmlThreadGLWindow.cpp
+        ./SmlOpenGLWinBase/SmlGLWindow.cpp
         ./SmlOpenGLWinBase/SmlWaitObject.cpp
         ./SmlOpenGLWinImpl/SmlGLWindowTriangle.h
         ./SmlOpenGLWinImpl/SmlGLWindowTriangle.cpp
