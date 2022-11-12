@@ -24,7 +24,8 @@ void SmlGLWindow::RequestRender()
         emit RenderFrameDoneSignal(); //SmlThreadGLWindow::requestUpdate
 		if constexpr (false)
 		{
-            SML_QTBase::requestUpdate();
+			connect(this, &SmlGLWindow::RenderFrameDoneSignal,
+				this, &SmlGLWindow::requestUpdate);
 		}
 
         return;
@@ -36,7 +37,8 @@ void SmlGLWindow::RequestRender()
         emit RequestRenderSignal(); //SmlThreadGLRender::Render
 		if constexpr (false)
 		{
-            _render->Render();
+			connect(this, &SmlGLWindow::RequestRenderSignal,
+				_render, &SmlThreadGLRender::Render);
 		}
         return;
     }
@@ -54,7 +56,8 @@ void SmlGLWindow::RequestRender()
     emit RequestRenderSignal(); //SmlThreadGLRender::Render
 	if constexpr (false)
 	{
-        _render->Render();
+		connect(this, &SmlGLWindow::RequestRenderSignal,
+			_render, &SmlThreadGLRender::Render);
 	}
 }
 
@@ -92,7 +95,8 @@ void SmlGLWindow::ThreadRender()
         emit RenderFrameDoneSignal(); //SmlThreadGLWindow::requestUpdate
         if constexpr (false)
         {
-            SML_QTBase::requestUpdate();
+			connect(this, &SmlGLWindow::RenderFrameDoneSignal,
+				this, &SmlGLWindow::requestUpdate);
         }
     }
 }
@@ -275,7 +279,8 @@ void SmlGLWindow::RequestCtx()
     emit RequestCtxSignal(); //SmlThreadGLWindow::ResponseCtx
     if constexpr (false)
     {
-        SmlGLWindow::ResponseCtx();
+		connect(this, &SmlGLWindow::RequestCtxSignal,
+			this, &SmlGLWindow::ResponseCtx);
     }
 
     const ulong SML_INFINITE = -1UL;
